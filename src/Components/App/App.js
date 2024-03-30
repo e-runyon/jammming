@@ -3,6 +3,7 @@ import './App.css';
 import SearchBar from '../SearchBar/SearchBar';
 import SearchResults from '../SearchResults/SearchResults';
 import Playlist from '../Playlist/Playlist';
+import Spotify from '../util/Spotify';
 
 function App() {
   function addTrack(track) {
@@ -24,9 +25,10 @@ function App() {
     console.log(name);
   }
 
-  function savePlaylist(){
+  async function savePlaylist(){
     const trackURIs = playlistTracks.map(track => track.uri);
-    console.log('Playlist Saved!')
+    const access = await Spotify().getAccessToken;
+    console.log(`Rx Token: ${access.token_type}\nRx Expires In: ${access.expires_in}`);
   }
 
   function search(term){
