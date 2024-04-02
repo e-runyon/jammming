@@ -1,9 +1,9 @@
 import React from "react";
 import './Track.css';
 
-const Track = {
-    renderAction() {
-        const buttonContent = isRemoval ? '-' : '+';
+function Track(props) {
+    function renderAction() {
+        const buttonContent = props.isRemoval ? '-' : '+';
         return (
             <div className='Track'>
                 <div className='Track-information'>
@@ -13,13 +13,13 @@ const Track = {
                 <button className='Track-action' onClick={this.addTrack}>{buttonContent}</button>
             </div>
         )
-    },
+    }
 
-    addTrack(props) {
+    function addTrack(props) {
         props.onAdd(this.track.id);
-    },
+    }
 
-    removeTrack(props){
+    function removeTrack(props){
         props.onRemove(this.track.id)
     }
 }
