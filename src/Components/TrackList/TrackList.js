@@ -6,7 +6,10 @@ function TrackList(props) {
     const list = props.list;
     return (
         <div className='TrackList'>
-            <Track isRemoval={true} id={props.id} />
+            {list.map(track => (
+                <Track track={track} isRemoval={props.isRemoval} onAdd={props.onAdd} onRemove={props.onRemove}/>
+            ))
+            }
         </div>
     )
 }

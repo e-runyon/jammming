@@ -7,9 +7,9 @@ import Spotify from '../util/Spotify';
 
 function App() {
   const demo = [
-    { name: 'Sample Song', artist: 'Anonymous Andy', album: 'Another Album', id: 0 },
-    { name: 'Rough Riffs', artist: 'Dwayne the Twang Johnson', album: 'Rock n Rock', id: 1 },
-    { name: 'Many Musics', artist: 'Legit Larry', album: 'Money Me', id: 2 }
+    { name: 'Sample Song', artists: 'Anonymous Andy', album: 'Another Album', id: 0 },
+    { name: 'Rough Riffs', artists: 'Dwayne the Twang Johnson', album: 'Rock n Rock', id: 1 },
+    { name: 'Many Musics', artists: 'Legit Larry', album: 'Money Me', id: 2 }
   ]
   const [searchResults, setSearchResults] = useState(demo);
   const [playlistName, setPlaylistName] = useState('Demo');
@@ -17,16 +17,21 @@ function App() {
   const userPlaylist = [];
 
   function addTrack(track) {
-    if (!playlistTracks.includes(track.id)) {
-      playlistTracks.push(track);
-      setPlaylistTracks(playlistTracks);
+    if (!playlistTracks.includes(track)) {
+      setPlaylistTracks(p => [...p, track]);
+      console.log(`Added ${JSON.stringify(track)} to...\n${JSON.stringify(playlistTracks)}`);
+    } else {
+      console.log('Failed to update playlist.');
     }
   }
 
   function removeTrack(track) {
-    if (playlistTracks.includes(track.id)) {
-      playlistTracks.splice(playlistTracks.indexOf(track.id), 1);
-      setPlaylistTracks(playlistTracks);
+    if (playlistTracks.includes(track)) {
+      const removeId = playlistTracks.indexOf(track);
+      setPlaylistTracks(playlistTracks.filter((t) => t !== track));
+      console.log(`Removed ${JSON.stringify(track)} from...\n${JSON.stringify(playlistTracks)}`);
+    } else {
+      console.log('Failed to update playlist.');
     }
   }
 
@@ -41,9 +46,11 @@ function App() {
   }
 
   async function search(term) {
-    const results = await Spotify.search(term);
-    console.log(results);
-    setSearchResults(results);
+    await Spotify.search(term)
+      .then(results => {
+        setSearchResults(results);
+      })
+      .catch(error => console.error(`Search failed: ${error}`))
   }
 
   return (

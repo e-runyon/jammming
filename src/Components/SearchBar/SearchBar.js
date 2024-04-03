@@ -5,6 +5,7 @@ function SearchBar(props) {
     let term;
     function search(){
         props.onSearch(term);
+        document.getElementById('input').value = '';
     }
 
     function handleTermChange(event) {
@@ -13,7 +14,7 @@ function SearchBar(props) {
 
     return (
         <div className="SearchBar">
-            <input placeholder="Enter A Song, Album, or Artist" onChange={handleTermChange} />
+            <input placeholder="Enter A Song, Album, or Artist" onChange={handleTermChange} id="input"/>
             <button className="SearchButton" onClick={search}>SEARCH</button>
         </div>
     );

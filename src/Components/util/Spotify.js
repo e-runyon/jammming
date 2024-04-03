@@ -42,13 +42,14 @@ const Spotify = {
             headers: { 'Authorization': `Bearer ${accessToken}` }
         })
             .then(response => response.json())
-            .then(data => {
-                if(data.tracks.items) {
-                    return data.tracks.items.map(track => ({
-                        id: track.id,
-                        name: track.name,
-                        artists: track.artists[0].name
+            .then(jsonResponse => {
+                if(jsonResponse.tracks.items) {
+                    const data = jsonResponse.tracks.items.map(tracks => ({
+                        name: tracks.name,
+                        artists: tracks.artists[0].name,
+                        id: tracks.id
                     }));
+                    return data;
                 } else {
                     console.log(`No results for: '${term}'`);
                 }
