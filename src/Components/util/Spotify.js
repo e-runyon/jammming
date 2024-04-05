@@ -1,4 +1,3 @@
-import { Buffer } from "buffer";
 const client_id = '0652b9a35caa4faaa174069446f3fa1f';
 const client_secret = 'f549418e0c4347e397ca21c319bae419';
 const endpointURI = 'https://accounts.spotify.com/api/token';
@@ -96,7 +95,7 @@ const Spotify = {
                 {
                     headers: headers,
                     method: 'POST',
-                    body: JSON.stringify({ uris: tracks })
+                    body: JSON.stringify({ uris: tracks.map(track => `spotify:track:${track}`) })
                 })
                 .then(response => response.json())
                 .then(data => data)

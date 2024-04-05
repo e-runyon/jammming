@@ -39,7 +39,6 @@ function App() {
 
   function updatePlaylistName(name = "Loading...") {
     setPlaylistName(name);
-    console.log(name);
   }
 
   async function savePlaylist() {
