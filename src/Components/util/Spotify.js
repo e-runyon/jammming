@@ -2,48 +2,59 @@ import { Buffer } from "buffer";
 const client_id = '0652b9a35caa4faaa174069446f3fa1f';
 const client_secret = 'f549418e0c4347e397ca21c319bae419';
 const endpointURI = 'https://accounts.spotify.com/api/token';
-let accessToken;
+const redirectURI = 'http://localhost:3000/';
+let accessToken, expires_in;
 
 const Spotify = {
     // Retrieve access token with user provided credentials
-    async getAccessToken() {
-        // Reuse access token if issued
+    getAccessToken() {
         if (accessToken) {
             console.log('Access Already Granted.');
-            return accessToken
+            return accessToken;
         }
-        // Issue new token
-        console.log('Fetching new Access Token...');
-        const newToken = await fetch(endpointURI, {
-            method: 'POST',
-            body: new URLSearchParams({
-                'grant_type': 'client_credentials'
-            }),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
-            }
-        })
-            .then(response => response.json())
-            .then(data => data)
-            .catch(error => console.error(error));
-        accessToken = newToken.access_token;
-        window.setTimeout(() => {
-            accessToken = '';
-            console.log('Access Token has expired!');
-        }, newToken.expires_in * 1000)
-        window.history.pushState('Access Token', null, '/');
-        return newToken;
+
+        const accessTokenMatch = window.location.href.match(/access_token=([^&]*)/);
+        const expires_inMatch = window.location.href.match(/expires_in=([^&]*)/);
+
+        if (accessTokenMatch && expires_inMatch) {
+            console.log('Access Token Granted!');
+            accessToken = accessTokenMatch[1];
+            expires_in = Number(expires_inMatch[1]);
+
+            sessionStorage.setItem('access_token', accessToken);
+            sessionStorage.setItem('expires_in', expires_in);
+
+            // console.log(`Access Token: ${accessToken}`);
+            console.log(`Access Expires In: ${expires_in}`);
+
+            window.setTimeout(() => {
+                sessionStorage.removeItem('access_token');
+                console.log('Access Token has expired!');
+            }, expires_in * 1000);
+            window.history.pushState('Access Token', null, '/');
+        } else {
+            console.log('Fetching new Access Token...');
+            let url = 'https://accounts.spotify.com/authorize';
+            url += '?response_type=token';
+            url += '&client_id=' + encodeURIComponent(client_id);
+            url += '&scope=' + encodeURIComponent('playlist-modify-public playlist-modify-private playlist-read-private playlist-read');
+            url += '&redirect_uri=' + redirectURI;
+            url += '&show_dialog=true';
+            window.location = url;
+        }
     },
+    // Search Spotify database
     async search(term) {
-        await Spotify.getAccessToken();
+        const token = Spotify.getAccessToken();
+
         console.log(`Searching for: ${term}`);
-        return await fetch(`https://api.spotify.com/v1/search?type=track&q=${term}`, {
-            headers: { 'Authorization': `Bearer ${accessToken}` }
+
+        const results = await fetch(`https://api.spotify.com/v1/search?type=track&q=${term}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(response => response.json())
             .then(jsonResponse => {
-                if(jsonResponse.tracks.items) {
+                if (jsonResponse.tracks.items) {
                     const data = jsonResponse.tracks.items.map(tracks => ({
                         name: tracks.name,
                         artists: tracks.artists[0].name,
@@ -55,20 +66,42 @@ const Spotify = {
                 }
             })
             .catch(error => console.error(error));
+        return results;
     },
-
-    savePlaylist(title, tracks) {
-        Spotify.getAccessToken();
+    // Save User created playlist to their Spotify account
+    async savePlaylist(title, tracks) {
+        await Spotify.getAccessToken();
+        const headers = { 'Authorization': `Bearer ${accessToken}` };
         if (title && tracks) {
             console.log('Fetching UserID...')
-            const userAccessToken = accessToken;
-            const headers = { 'Authorization': `Bearer ${userAccessToken}` };
-            const body = {
-                'name': title,
-            }
-            let userID = fetch('https://api.spotify.com/v1/me', headers);
-            console.log(`UserID: ${userID}`);
-            let playlistID = fetch(`https://api.spotify.com/users/${userID}/playlists`)
+            let userId = await fetch('https://api.spotify.com/v1/me',
+                {
+                    headers: headers,
+                })
+                .then(response => response.json())
+                .then(data => (data.id))
+                .catch(error => console.error(`Failed to retreive userID\n${error}`));
+            console.log(`UserID: ${userId}`);
+            let playlistId = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists`,
+                {
+                    headers: headers,
+                    method: 'POST',
+                    body: JSON.stringify({ name: title })
+                })
+                .then(response => response.json())
+                .then(data => data.id)
+                .catch(error => console.error(`Failed to create playlistID.\n${error}`));
+            console.log(`PlaylistID: ${playlistId}`);
+            let snapshotId = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+                {
+                    headers: headers,
+                    method: 'POST',
+                    body: JSON.stringify({ uris: tracks })
+                })
+                .then(response => response.json())
+                .then(data => data)
+                .catch(error => console.error(`Failed to upload playlist data.\n${error}`));
+            console.log(snapshotId);
 
         } else {
             console.log('No Tracks in Playlist to save.')

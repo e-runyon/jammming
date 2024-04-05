@@ -5,6 +5,7 @@ import TrackList from '../TrackList/TrackList';
 function SearchResults(props) {
     return (
         <div className="SearchResults">
+            <h2>Results</h2>
             <TrackList list={props.searchResults} onAdd={props.onAdd} isRemoval={false}/>
         </div>
     );

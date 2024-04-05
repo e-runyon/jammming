@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import SearchBar from '../SearchBar/SearchBar';
 import SearchResults from '../SearchResults/SearchResults';
@@ -11,15 +11,18 @@ function App() {
     { name: 'Rough Riffs', artists: 'Dwayne the Twang Johnson', album: 'Rock n Rock', id: 1 },
     { name: 'Many Musics', artists: 'Legit Larry', album: 'Money Me', id: 2 }
   ]
-  const [searchResults, setSearchResults] = useState(demo);
-  const [playlistName, setPlaylistName] = useState('Demo');
-  const [playlistTracks, setPlaylistTracks] = useState(demo);
+  const [searchResults, setSearchResults] = useState();
+  const [playlistName, setPlaylistName] = useState();
+  const [playlistTracks, setPlaylistTracks] = useState([]);
   const userPlaylist = [];
+
+  useEffect(() => {
+    Spotify.getAccessToken();
+  }, []);
 
   function addTrack(track) {
     if (!playlistTracks.includes(track)) {
       setPlaylistTracks(p => [...p, track]);
-      console.log(`Added ${JSON.stringify(track)} to...\n${JSON.stringify(playlistTracks)}`);
     } else {
       console.log('Failed to update playlist.');
     }
@@ -29,7 +32,6 @@ function App() {
     if (playlistTracks.includes(track)) {
       const removeId = playlistTracks.indexOf(track);
       setPlaylistTracks(playlistTracks.filter((t) => t !== track));
-      console.log(`Removed ${JSON.stringify(track)} from...\n${JSON.stringify(playlistTracks)}`);
     } else {
       console.log('Failed to update playlist.');
     }
@@ -41,14 +43,14 @@ function App() {
   }
 
   async function savePlaylist() {
-    const trackURIs = playlistTracks.map(track => track.uri);
-    Spotify.savePlaylist();
+    const trackURIs = playlistTracks.map(track => track.id);
+    console.log(`Sending to spotify: ${trackURIs}`);
+    Spotify.savePlaylist(playlistName, trackURIs);
   }
 
   async function search(term) {
-    await Spotify.search(term)
-      .then(results => {
-        setSearchResults(results);
+    await Spotify.search(term).then(results => {
+        setSearchResults(results)
       })
       .catch(error => console.error(`Search failed: ${error}`))
   }

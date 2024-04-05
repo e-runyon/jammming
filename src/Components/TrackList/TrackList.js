@@ -3,7 +3,7 @@ import Track from '../Track/Track';
 import './TrackList.css';
 
 function TrackList(props) {
-    const list = props.list;
+    const list = props.list ? props.list : [];
     return (
         <div className='TrackList'>
             {list.map(track => (
