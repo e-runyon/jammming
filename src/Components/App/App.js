@@ -28,6 +28,12 @@ function App() {
     }
   }
 
+  function reset() {
+    setSearchResults(() => []);
+    document.getElementById("playlist-name").value = "";
+    setPlaylistTracks(() => []);
+  }
+
   function removeTrack(track) {
     if (playlistTracks.includes(track)) {
       const removeId = playlistTracks.indexOf(track);
@@ -43,8 +49,9 @@ function App() {
 
   async function savePlaylist() {
     const trackURIs = playlistTracks.map(track => track.id);
-    console.log(`Sending to spotify: ${trackURIs}`);
-    Spotify.savePlaylist(playlistName, trackURIs);
+    console.log(`Saving ${playlistName} to Spotify.`);
+    await Spotify.savePlaylist(playlistName, trackURIs);
+    reset();
   }
 
   async function search(term) {

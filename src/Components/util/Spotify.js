@@ -68,10 +68,10 @@ const Spotify = {
         return results;
     },
     // Save User created playlist to their Spotify account
-    async savePlaylist(title, tracks) {
+    async savePlaylist(title = 'New Playlist', tracks) {
         await Spotify.getAccessToken();
         const headers = { 'Authorization': `Bearer ${accessToken}` };
-        if (title && tracks) {
+        if (tracks) {
             console.log('Fetching UserID...')
             let userId = await fetch('https://api.spotify.com/v1/me',
                 {
