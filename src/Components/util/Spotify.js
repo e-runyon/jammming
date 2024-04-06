@@ -1,7 +1,5 @@
 const client_id = '0652b9a35caa4faaa174069446f3fa1f';
-const client_secret = 'f549418e0c4347e397ca21c319bae419';
-const endpointURI = 'https://accounts.spotify.com/api/token';
-const redirectURI = 'http://localhost:3000/';
+const redirectURI = 'https://playlist-jammming.surge.sh';
 let accessToken, expires_in;
 
 const Spotify = {
