@@ -6,20 +6,16 @@ import Playlist from '../Playlist/Playlist';
 import Spotify from '../util/Spotify';
 
 function App() {
-  const demo = [
-    { name: 'Sample Song', artists: 'Anonymous Andy', album: 'Another Album', id: 0 },
-    { name: 'Rough Riffs', artists: 'Dwayne the Twang Johnson', album: 'Rock n Rock', id: 1 },
-    { name: 'Many Musics', artists: 'Legit Larry', album: 'Money Me', id: 2 }
-  ]
-  const [searchResults, setSearchResults] = useState();
-  const [playlistName, setPlaylistName] = useState();
+  const [searchResults, setSearchResults] = useState(null);
+  const [playlistName, setPlaylistName] = useState(null);
   const [playlistTracks, setPlaylistTracks] = useState([]);
-  const userPlaylist = [];
 
+  // Attempt to log in to Spotify when the user visits the URL.
   useEffect(() => {
     Spotify.getAccessToken();
   }, []);
 
+  // Add track to the playlist creator
   function addTrack(track) {
     if (!playlistTracks.includes(track)) {
       setPlaylistTracks(p => [...p, track]);
@@ -28,12 +24,14 @@ function App() {
     }
   }
 
+  // Resets search results and playlist
   function reset() {
     setSearchResults(() => []);
     document.getElementById("playlist-name").value = "";
     setPlaylistTracks(() => []);
   }
 
+  // Remove track from the playlist creator
   function removeTrack(track) {
     if (playlistTracks.includes(track)) {
       const removeId = playlistTracks.indexOf(track);
@@ -43,10 +41,12 @@ function App() {
     }
   }
 
+  // Update playlist name
   function updatePlaylistName(name = "Loading...") {
     setPlaylistName(name);
   }
 
+  // Saves present playlist to User's Spotify account
   async function savePlaylist() {
     const trackURIs = playlistTracks.map(track => track.id);
     console.log(`Saving ${playlistName} to Spotify.`);
@@ -54,6 +54,7 @@ function App() {
     reset();
   }
 
+  // Searches for songs in Spotify's database
   async function search(term) {
     await Spotify.search(term).then(results => {
         setSearchResults(results)

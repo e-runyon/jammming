@@ -1,5 +1,8 @@
-const client_id = '0652b9a35caa4faaa174069446f3fa1f';
-const redirectURI = 'https://playlist-jammming.surge.sh';
+// CLIENT_ID must be provided in the '.env' file located in the root directory
+const client_id = process.env.REACT_APP_CLIENT_ID || '';
+
+// REDIRECT_URI must be set to 'http://localhost:3000' in the Spotify Developer Dashboard for the application created. See README.md for details.
+const redirectURI = 'http://localhost:3000';
 let accessToken, expires_in;
 
 const Spotify = {
@@ -15,13 +18,13 @@ const Spotify = {
 
         if (accessTokenMatch && expires_inMatch) {
             console.log('Access Token Granted!');
+
             accessToken = accessTokenMatch[1];
             expires_in = Number(expires_inMatch[1]);
 
             sessionStorage.setItem('access_token', accessToken);
             sessionStorage.setItem('expires_in', expires_in);
 
-            // console.log(`Access Token: ${accessToken}`);
             console.log(`Access Expires In: ${expires_in}`);
 
             window.setTimeout(() => {
@@ -55,6 +58,7 @@ const Spotify = {
                     const data = jsonResponse.tracks.items.map(tracks => ({
                         name: tracks.name,
                         artists: tracks.artists[0].name,
+                        album: tracks.album.name,
                         id: tracks.id
                     }));
                     return data;

@@ -1,6 +1,14 @@
-# Getting Started with Create React App
+# Getting Started
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+1. Login to the [dashboard](https://developer.spotify.com/dashboard) using your Spotify account.
+
+2. Create an app with the redirect URI set to http://localhost:3000. Select "Web API" when asked which APIs you want to use. After saving, you will have access to the app credentials.
+
+3. Copy the "Client ID" and save it to the ".env" file located in the root directory.
+
+4. Run `npm start` from the root directory.
 
 ## Available Scripts
 
